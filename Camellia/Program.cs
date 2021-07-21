@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using Camellia.Modules;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using System;
@@ -48,7 +49,9 @@ namespace Camellia
         {
             _client.MessageReceived += HandleCommandAsync;
 
-            var credentials = JsonSerializer.Deserialize<Credentials>(File.ReadAllText("Keys/credentials.txt"), new JsonSerializerOptions
+            await _commands.AddModuleAsync<Science>(null);
+
+            var credentials = JsonSerializer.Deserialize<Credentials>(File.ReadAllText("Keys/Credentials.json"), new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
@@ -69,12 +72,14 @@ namespace Camellia
             {
                 SocketCommandContext context = new(_client, msg);
                 var result = await _commands.ExecuteAsync(context, pos, null);
-#if DEBUG
                 if (!result.IsSuccess)
                 {
-                    Console.WriteLine(result.ErrorReason);
+                    if (result.Error == CommandError.UnmetPrecondition || result.Error == CommandError.BadArgCount
+                        || result.Error == CommandError.ParseFailed)
+                    {
+                        await msg.Channel.SendMessageAsync(result.ErrorReason);
+                    }
                 }
-#endif
             }
         }
     }
