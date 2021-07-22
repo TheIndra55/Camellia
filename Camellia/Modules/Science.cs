@@ -28,5 +28,17 @@ namespace Camellia.Modules
                 }
             }.Build());
         }
+
+        [Command("Hex")]
+        public async Task Hex(params int[] numbers)
+        {
+            await ReplyAsync(string.Join(" ", numbers.Select(x => x.ToString("X"))));
+        }
+
+        [Command("Dec")]
+        public async Task Dec(params Hex[] numbers)
+        {
+            await ReplyAsync(string.Join(" ", numbers.Select(x => x.Value)));
+        }
     }
 }

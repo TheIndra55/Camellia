@@ -1,4 +1,5 @@
 ﻿using Camellia.Modules;
+using Camellia.TypeReader;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -48,6 +49,8 @@ namespace Camellia
         private async Task MainAsync()
         {
             _client.MessageReceived += HandleCommandAsync;
+
+            _commands.AddTypeReader<Hex>(new HexReader());
 
             await _commands.AddModuleAsync<Science>(null);
 
