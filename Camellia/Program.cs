@@ -18,7 +18,7 @@ namespace Camellia
 
         private readonly DiscordSocketClient _client = new(new DiscordSocketConfig
         {
-            LogLevel = LogSeverity.Verbose,
+            LogLevel = LogSeverity.Verbose
         });
         private readonly CommandService _commands = new();
 
@@ -52,6 +52,7 @@ namespace Camellia
 
             _commands.AddTypeReader<Hex>(new HexReader());
 
+            await _commands.AddModuleAsync<Communication>(null);
             await _commands.AddModuleAsync<Science>(null);
 
             var credentials = JsonSerializer.Deserialize<Credentials>(File.ReadAllText("Keys/Credentials.json"), new JsonSerializerOptions
