@@ -3,6 +3,7 @@ using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
@@ -18,9 +19,14 @@ namespace Camellia.Modules
         }
 
         [Command("Json")]
-        public async Task JsonAsync([Remainder]string str)
+        public async Task JsonAsync([Remainder]string str = null)
         {
             str = await GetCleanInputCodeAsync("json", str);
+            if (str == null)
+            {
+                await ReplyAsync("You must provide the text to parse, either as an argument, as an attachment or as the previous message by giving \"^\" as a parameter.");
+                return;
+            }
             try
             {
                 JsonConvert.DeserializeObject(str);
@@ -33,12 +39,12 @@ namespace Camellia.Modules
         }
 
         [Command("XML")]
-        public async Task XmlAsync([Remainder] string str)
+        public async Task XmlAsync([Remainder] string str = null)
         {
             str = await GetCleanInputCodeAsync("xml", str);
             if (str == null)
             {
-                await ReplyAsync("There is no message above this one.");
+                await ReplyAsync("You must provide the text to parse, either as an argument, as an attachment or as the previous message by giving \"^\" as a parameter.");
                 return;
             }
             var xmlDoc = new XmlDocument();
@@ -55,10 +61,29 @@ namespace Camellia.Modules
 
         private async Task<string> GetCleanInputCodeAsync(string currentLanguage, string str)
         {
-            if (str == "^")
+            if (str == null)
             {
-                str = await GetLastMessageAsync();
+                if (Context.Message.Attachments.Any()) // Empty message but contains an attachment
+                {
+                    return await StaticObjects.HttpClient.GetStringAsync(Context.Message.Attachments.ElementAt(0).Url);
+                }
+                return null;
             }
+            if (str == "^") // We need to check previous message
+            {
+                var msg = await GetLastMessageAsync();
+                if (msg.Attachments.Any()) // Previous message has an attachment
+                {
+                    return await StaticObjects.HttpClient.GetStringAsync(msg.Attachments.ElementAt(0).Url);
+                }
+                else if (string.IsNullOrWhiteSpace(msg.Content)) // Previous message is empty
+                {
+                    return null;
+                }
+                str = msg.Content;
+            }
+
+            // Check for code tags
             if (str.StartsWith("```" + currentLanguage, StringComparison.InvariantCultureIgnoreCase) && str.EndsWith("```"))
             {
                 return str[(3 + currentLanguage.Length)..^3].Trim();
@@ -70,12 +95,12 @@ namespace Camellia.Modules
             return str.Trim();
         }
 
-        private async Task<string> GetLastMessageAsync()
+        private async Task<IMessage> GetLastMessageAsync()
         {
             var msgs = await Context.Channel.GetMessagesAsync(2).FlattenAsync();
             if (msgs.Count() == 2)
             {
-                return msgs.ElementAt(1).Content;
+                return msgs.ElementAt(1);
             }
             return null;
         }
