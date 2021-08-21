@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using Dangl.Calculator;
+using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
 using System;
@@ -10,6 +11,12 @@ namespace Camellia.Modules
 {
     public class Science : ModuleBase
     {
+        [Command("Calc")]
+        public async Task CalcAsync([Remainder]string str)
+        {
+            await ReplyAsync(Calculator.Calculate(str).Result.ToString());
+        }
+
         [Command("Json")]
         public async Task JsonAsync([Remainder]string str)
         {
