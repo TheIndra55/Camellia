@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
@@ -12,14 +13,7 @@ namespace Camellia.Modules
         [Command("Json")]
         public async Task JsonAsync([Remainder]string str)
         {
-            if (str.StartsWith("```json") && str.EndsWith("```"))
-            {
-                str = str[7..^3];
-            }
-            else if (str.StartsWith("```") && str.EndsWith("```"))
-            {
-                str = str[3..^3];
-            }
+            str = await GetCleanInputCodeAsync("json", str);
             try
             {
                 JsonConvert.DeserializeObject(str);
@@ -34,13 +28,11 @@ namespace Camellia.Modules
         [Command("XML")]
         public async Task XmlAsync([Remainder] string str)
         {
-            if (str.StartsWith("```xml") && str.EndsWith("```"))
+            str = await GetCleanInputCodeAsync("xml", str);
+            if (str == null)
             {
-                str = str[6..^3];
-            }
-            else if (str.StartsWith("```") && str.EndsWith("```"))
-            {
-                str = str[3..^3];
+                await ReplyAsync("There is no message above this one.");
+                return;
             }
             var xmlDoc = new XmlDocument();
             try
@@ -52,6 +44,33 @@ namespace Camellia.Modules
             {
                 await ReplyAsync("Your XML is **not** valid:\n```" + e.Message + "\n```");
             }
+        }
+
+        private async Task<string> GetCleanInputCodeAsync(string currentLanguage, string str)
+        {
+            if (str == "^")
+            {
+                str = await GetLastMessageAsync();
+            }
+            if (str.StartsWith("```" + currentLanguage, StringComparison.InvariantCultureIgnoreCase) && str.EndsWith("```"))
+            {
+                return str[(3 + currentLanguage.Length)..^3].Trim();
+            }
+            if (str.StartsWith("```") && str.EndsWith("```"))
+            {
+                return str[3..^3].Trim();
+            }
+            return str.Trim();
+        }
+
+        private async Task<string> GetLastMessageAsync()
+        {
+            var msgs = await Context.Channel.GetMessagesAsync(2).FlattenAsync();
+            if (msgs.Count() == 2)
+            {
+                return msgs.ElementAt(1).Content;
+            }
+            return null;
         }
 
         [Command("Length")]
