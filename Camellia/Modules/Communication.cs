@@ -17,8 +17,18 @@ namespace Camellia.Modules
                     "**Dec [hexadecimal number]:** Convert hexadecimal to decimal\n" +
                     "**JSON [text]:** Check if a JSON is valid or not\n" +
                     "**XML [text]:** Check if an XML is valid or not\n",
-                Color = Color.Blue
+                Color = Color.Blue,
+                Footer = new EmbedFooterBuilder
+                {
+                    Text = "Any other question? Feel free to open an issue: https://github.com/Xwilarg/Camellia/"
+                }
             }.Build());
+        }
+
+        [Command("Invite")]
+        public async Task InviteAsync()
+        {
+            await ReplyAsync("https://discord.com/api/oauth2/authorize?client_id=867196397361954837&scope=bot");
         }
     }
 }
