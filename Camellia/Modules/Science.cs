@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -137,6 +138,21 @@ namespace Camellia.Modules
         public async Task DecAsync(params Hex[] numbers)
         {
             await ReplyAsync(string.Join(" ", numbers.Select(x => x.Value)));
+        }
+
+        [Command("Bytes")]
+        public async Task RandomBytesAsync(int length = 16)
+        {
+            if (length <= 0 || length > 512)
+            {
+                await ReplyAsync("You must specify a length between 1 and 512 bytes.");
+                return;
+            }
+
+            var bytes = new byte[length];
+            RandomNumberGenerator.Fill(bytes);
+
+            await ReplyAsync(Convert.ToHexString(bytes));
         }
     }
 }
