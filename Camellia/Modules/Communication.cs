@@ -17,7 +17,8 @@ namespace Camellia.Modules
                     "**Dec [hexadecimal number]:** Convert hexadecimal to decimal\n" +
                     "**JSON [text]:** Check if a JSON is valid or not\n" +
                     "**XML [text]:** Check if an XML is valid or not\n" +
-                    "**Calc [operation]:** Evaluate a mathematical expression",
+                    "**Calc [operation]:** Evaluate a mathematical expression\n" +
+                    "**Bytes [number of bytes]:** Generates a string of cryptographic random bytes",
                 Color = Color.Blue,
                 Footer = new EmbedFooterBuilder
                 {
