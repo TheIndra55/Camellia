@@ -3,7 +3,6 @@ using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
 using System;
-using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -13,6 +12,12 @@ namespace Camellia.Modules
 {
     public class Science : ModuleBase
     {
+        [Command("Duration")]
+        public async Task DurationAsync(DateTime d1, DateTime d2)
+        {
+            await ReplyAsync((d1 > d2 ? d1 - d2 : d2 - d1).ToString());
+        }
+
         [Command("Calc")]
         public async Task CalcAsync([Remainder]string str)
         {
