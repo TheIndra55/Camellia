@@ -20,7 +20,8 @@ namespace Camellia
 
         private readonly DiscordSocketClient _client = new(new DiscordSocketConfig
         {
-            LogLevel = LogSeverity.Verbose
+            LogLevel = LogSeverity.Verbose,
+            GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent
         });
         private readonly CommandService _commands = new();
 
