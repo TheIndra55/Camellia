@@ -19,7 +19,8 @@ namespace Camellia.Modules
                     "**XML [text]:** Check if an XML is valid or not\n" +
                     "**Calc [operation]:** Evaluate a mathematical expression\n" +
                     "**Bytes [number of bytes]:** Generates a string of cryptographic random bytes\n" +
-                    "**Duration [date 1] [date 2]:** Display the duration between 2 dates",
+                    "**Duration [date 1] [date 2]:** Display the duration between 2 dates\n" +
+                    "**Invite** Get the invite link of the bot",
                 Color = Color.Blue,
                 Footer = new EmbedFooterBuilder
                 {
@@ -31,7 +32,7 @@ namespace Camellia.Modules
         [Command("Invite")]
         public async Task InviteAsync()
         {
-            await ReplyAsync("https://discord.com/api/oauth2/authorize?client_id=867196397361954837&scope=bot");
+            await ReplyAsync($"https://discord.com/api/oauth2/authorize?client_id={Context.Client.CurrentUser.Id}&scope=bot");
         }
     }
 }
