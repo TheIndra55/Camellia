@@ -3,8 +3,10 @@ using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -65,6 +67,12 @@ namespace Camellia.Modules
             }
         }
 
+        private IAttachment GetAttachment()
+        {
+            // Gets the attached file, or if it's a reply the file attached to the reply, or null
+            return Context.Message.Attachments.FirstOrDefault() ?? Context.Message.ReferencedMessage?.Attachments?.FirstOrDefault();
+        }
+
         private async Task<string> GetCleanInputCodeAsync(string currentLanguage, string str)
         {
             if (str == null)
@@ -109,6 +117,12 @@ namespace Camellia.Modules
                 return msgs.ElementAt(1);
             }
             return null;
+        }
+
+        private async Task<IMessage> ReplyFileAsync(string contents, string name)
+        {
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(contents));
+            return await Context.Channel.SendFileAsync(stream, name);
         }
 
         [Command("Length")]
@@ -158,6 +172,33 @@ namespace Camellia.Modules
             RandomNumberGenerator.Fill(bytes);
 
             await ReplyAsync(Convert.ToHexString(bytes));
+        }
+
+        [Command("Hexdump")]
+        public async Task HexDump()
+        {
+            var attachment = GetAttachment();
+
+            if (attachment == null)
+            {
+                await ReplyAsync("You must provide a file.");
+                return;
+            }
+
+            // Download the file and take the first 0x2000 bytes
+            var contents = await StaticObjects.HttpClient.GetByteArrayAsync(attachment.Url);
+            var data = contents.Take(0x2000).ToArray();
+
+            var str = Utils.ToHexdump(data);
+
+            if (str.Length < 1000)
+            {
+                await ReplyAsync("```\n" + str + "\n```");
+            }
+            else
+            {
+                await ReplyFileAsync(str, "hexdump.txt");
+            }
         }
     }
 }
