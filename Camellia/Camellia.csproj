@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dangl.Calculator" Version="2.2.0" />
-    <PackageReference Include="Discord.Net" Version="3.16.0" />
+    <PackageReference Include="Discord.Net" Version="3.18.0" />
   </ItemGroup>
 
 </Project>
